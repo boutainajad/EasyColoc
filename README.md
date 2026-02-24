@@ -50,52 +50,6 @@ Application web de gestion de colocation développée avec Laravel. Elle permet 
 
 ---
 
-## Installation
-
-### Prérequis
-
-- PHP >= 8.0
-- Composer
-- Node.js & npm
-- MySQL
-
-### Étapes
-
-```bash
-# 1. Cloner le projet
-git clone https://github.com/votre-username/gestioncoloc.git
-cd gestioncoloc
-
-# 2. Installer les dépendances PHP
-composer install
-
-# 3. Installer les dépendances JS
-npm install && npm run build
-
-# 4. Copier le fichier d'environnement
-cp .env.example .env
-
-# 5. Générer la clé de l'application
-php artisan key:generate
-
-# 6. Configurer la base de données dans .env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=gestioncoloc
-DB_USERNAME=root
-DB_PASSWORD=
-
-# 7. Exécuter les migrations
-php artisan migrate
-
-# 8. Lancer le serveur
-php artisan serve
-```
-
-L'application sera accessible sur `http://localhost:8000`
-
----
 
 ## Structure du projet
 
