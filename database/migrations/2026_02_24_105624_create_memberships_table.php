@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('memberships', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('colocation_id')->constrained()->onDelete('cascade');
-            $table->enum('role', ['owner', 'member'])->default('member');
-            $table->timestamp('joined_at')->useCurrent();
-            $table->timestamp('left_at')->nullable();
-            $table->timestamps();
-        });
+        $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->foreignId('colocation_id')->constrained()->onDelete('cascade');
+        $table->enum('role', ['owner', 'member'])->default('member');
+        $table->timestamp('joined_at')->useCurrent();
+        $table->timestamp('left_at')->nullable();
+        $table->timestamps();
+    });
     }
 
     public function down(): void

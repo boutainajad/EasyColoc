@@ -9,12 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('colocations', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->enum('status', ['active', 'cancelled'])->default('active');
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $table->timestamps();
-        });
+        $table->id();
+        $table->string('name');
+        $table->enum('status', ['active', 'cancelled'])->default('active');
+        $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+        $table->timestamps();
+});
     }
 
     public function down(): void
