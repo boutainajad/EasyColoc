@@ -22,4 +22,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Payment::class, 'from_user_id');
     }
+     public function colocations()
+    {
+        return $this->belongsToMany(Colocation::class, 'memberships')
+                    ->withPivot('role', 'joined_at', 'left_at');
+    }
+
+    public function activeColocation()
+    {
+        return $this->memberships()->whereNull('left_at')->first();
+    }
 }
