@@ -20,7 +20,7 @@ class StoreExpenseRequest extends FormRequest
             'amount'      => 'sometimes|numeric|min:0',
             'date'        => 'sometimes|date',
             'category_id' => 'sometimes|exists:categories,id',
-            'paid_by'     => 'sometimes|exists:users,id',
+            'paid_by' => 'required|exists:users,id', 
         ];
     }
         public function messages(): array

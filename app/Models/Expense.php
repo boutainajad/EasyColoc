@@ -4,9 +4,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Expense extends Model
 {
-    protected $fillable = [
-        'title', 'amount', 'date', 'colocation_id', 'category_id'
-    ];
+protected $fillable = [
+    'title', 'amount', 'date', 'paid_by', 'colocation_id', 'category_id'
+];
 
     public function colocation()
     {
@@ -17,4 +17,8 @@ class Expense extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function paidBy()
+{
+    return $this->belongsTo(User::class, 'paid_by');
+}
 }

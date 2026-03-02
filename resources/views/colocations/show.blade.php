@@ -14,6 +14,9 @@
         .success { color: green; font-weight: bold; }
         .error { color: red; }
         .back { color: #333; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+        .rep-pos { color: green; font-weight: bold; }
+        .rep-neg { color: red; font-weight: bold; }
+        .btn-small { padding: 4px 10px; font-size: 12px; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -38,7 +41,33 @@
 <h2>Membres</h2>
 @foreach($members as $membership)
     <div class="card">
-        <p>{{ $membership->user->name }} - {{ $membership->role }}</p>
+        @php 
+            $rep = $membership->user->getReputationScore();
+            $isOwner = $membership->role === 'owner';
+        @endphp
+        <p>
+            {{ $membership->user->name }} - {{ $membership->role }}
+            | Réputation :
+            <span class="{{ $rep > 0 ? 'rep-pos' : ($rep < 0 ? 'rep-neg' : '') }}">
+                {{ $rep > 0 ? '+' : '' }}{{ $rep }}
+            </span>
+
+            @auth
+                @php
+                    $currentUser = auth()->user();
+                    $currentMembership = $colocation->memberships()
+                        ->where('user_id', $currentUser->id)
+                        ->whereNull('left_at')
+                        ->first();
+                @endphp
+                @if($currentMembership && $currentMembership->role === 'owner' && $membership->user->id !== $currentUser->id)
+                    <form method="POST" action="{{ route('colocations.kick', [$colocation, $membership->user]) }}" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="btn btn-red btn-small" onclick="return confirm('Êtes-vous sûr de vouloir expulser {{ $membership->user->name }} ?')">Expulser</button>
+                    </form>
+                @endif
+            @endauth
+        </p>
     </div>
 @endforeach
 
@@ -48,6 +77,17 @@
     <input type="email" name="email" placeholder="Email" required>
     <button type="submit" class="btn">Inviter</button>
 </form>
+
+<h2>Qui doit a qui</h2>
+@if(empty($settlements))
+    <p>Aucune dette.</p>
+@else
+    @foreach($settlements as $settlement)
+        <div class="card">
+            <p>{{ $settlement['from']->name }} doit {{ $settlement['amount'] }} DH a {{ $settlement['to']->name }}</p>
+        </div>
+    @endforeach
+@endif
 
 <h2>Categories</h2>
 @foreach($colocation->categories as $category)

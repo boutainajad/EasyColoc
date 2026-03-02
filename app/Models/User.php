@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -18,11 +20,22 @@ class User extends Authenticatable
         return $this->hasMany(ReputationLog::class);
     }
 
-    public function payments()
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class, 'paid_by');
+    }
+
+    public function paymentsFrom()
     {
         return $this->hasMany(Payment::class, 'from_user_id');
     }
-     public function colocations()
+
+    public function paymentsTo()
+    {
+        return $this->hasMany(Payment::class, 'to_user_id');
+    }
+
+    public function colocations()
     {
         return $this->belongsToMany(Colocation::class, 'memberships')
                     ->withPivot('role', 'joined_at', 'left_at');
@@ -31,5 +44,10 @@ class User extends Authenticatable
     public function activeColocation()
     {
         return $this->memberships()->whereNull('left_at')->first();
+    }
+
+    public function getReputationScore()
+    {
+        return $this->reputationLogs()->sum('change');
     }
 }

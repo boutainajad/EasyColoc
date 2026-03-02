@@ -12,9 +12,18 @@
         .btn { padding: 8px 20px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .error { color: red; font-size: 14px; }
         .back { color: #333; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+        nav { display: flex; justify-content: flex-end; margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        .btn-red { background: #c0392b; border: none; cursor: pointer; color: white; padding: 8px 15px; border-radius: 4px; }
     </style>
 </head>
 <body>
+
+<nav>
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit" class="btn-red">Se déconnecter</button>
+    </form>
+</nav>
 
 <a href="{{ route('colocations.index') }}" class="back">Retour</a>
 
