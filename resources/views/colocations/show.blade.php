@@ -41,32 +41,19 @@
 <h2>Membres</h2>
 @foreach($members as $membership)
     <div class="card">
-        @php 
-            $rep = $membership->user->getReputationScore();
-            $isOwner = $membership->role === 'owner';
-        @endphp
         <p>
             {{ $membership->user->name }} - {{ $membership->role }}
             | Réputation :
-            <span class="{{ $rep > 0 ? 'rep-pos' : ($rep < 0 ? 'rep-neg' : '') }}">
-                {{ $rep > 0 ? '+' : '' }}{{ $rep }}
+            <span class="{{ $membership->reputation > 0 ? 'rep-pos' : ($membership->reputation < 0 ? 'rep-neg' : '') }}">
+                {{ $membership->reputation > 0 ? '+' : '' }}{{ $membership->reputation }}
             </span>
 
-            @auth
-                @php
-                    $currentUser = auth()->user();
-                    $currentMembership = $colocation->memberships()
-                        ->where('user_id', $currentUser->id)
-                        ->whereNull('left_at')
-                        ->first();
-                @endphp
-                @if($currentMembership && $currentMembership->role === 'owner' && $membership->user->id !== $currentUser->id)
-                    <form method="POST" action="{{ route('colocations.kick', [$colocation, $membership->user]) }}" style="display:inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-red btn-small" onclick="return confirm('Êtes-vous sûr de vouloir expulser {{ $membership->user->name }} ?')">Expulser</button>
-                    </form>
-                @endif
-            @endauth
+            @if($membership->can_kick)
+                <form method="POST" action="{{ route('colocations.kick', [$colocation, $membership->user]) }}" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-red btn-small" onclick="return confirm('Êtes-vous sûr de vouloir expulser {{ $membership->user->name }} ?')">Expulser</button>
+                </form>
+            @endif
         </p>
     </div>
 @endforeach
@@ -78,18 +65,18 @@
     <button type="submit" class="btn">Inviter</button>
 </form>
 
-<h2>Qui doit a qui</h2>
+<h2>Qui doit à qui</h2>
 @if(empty($settlements))
     <p>Aucune dette.</p>
 @else
     @foreach($settlements as $settlement)
         <div class="card">
-            <p>{{ $settlement['from']->name }} doit {{ $settlement['amount'] }} DH a {{ $settlement['to']->name }}</p>
+            <p>{{ $settlement['from']->name }} doit {{ $settlement['amount'] }} DH à {{ $settlement['to']->name }}</p>
         </div>
     @endforeach
 @endif
 
-<h2>Categories</h2>
+<h2>Catégories</h2>
 @foreach($colocation->categories as $category)
     <div class="card">
         <span>{{ $category->name }}</span>
@@ -103,15 +90,15 @@
 
 <form method="POST" action="{{ route('categories.store', $colocation) }}">
     @csrf
-    <input type="text" name="name" placeholder="Nom de la categorie" required maxlength="255">
+    <input type="text" name="name" placeholder="Nom de la catégorie" required maxlength="255">
     <button type="submit" class="btn">Ajouter</button>
 </form>
 
-<h2>Depenses</h2>
+<h2>Dépenses</h2>
 @foreach($expenses as $expense)
     <div class="card">
         <p>{{ $expense->title }} - {{ $expense->amount }} DH - {{ $expense->date }}</p>
-        <p>Paye par: {{ $expense->paidBy->name }} | Categorie: {{ $expense->category->name }}</p>
+        <p>Payé par: {{ $expense->paidBy->name }} | Catégorie: {{ $expense->category->name }}</p>
         <form method="POST" action="{{ route('expenses.destroy', $expense) }}" style="display:inline;">
             @csrf
             @method('DELETE')
@@ -126,7 +113,7 @@
     <input type="number" name="amount" placeholder="Montant" step="0.01" min="0" required>
     <input type="date" name="date" required>
     <select name="category_id" required>
-        <option value="">Categorie</option>
+        <option value="">Catégorie</option>
         @foreach($colocation->categories as $category)
             <option value="{{ $category->id }}">{{ $category->name }}</option>
         @endforeach

@@ -48,7 +48,7 @@ class ColocationController extends Controller
 
             if ($activeMembersCount > 1) {
                 return back()->withErrors([
-                    'error' => 'Vous avez deja une colocation active.'
+                    'error' => 'Vous avez déjà une colocation active.'
                 ]);
             }
         }
@@ -71,9 +71,31 @@ class ColocationController extends Controller
 
     public function show(Colocation $colocation)
     {
-        $members = $colocation->memberships()->whereNull('left_at')->with('user')->get();
-        $expenses = $colocation->expenses()->with('category', 'paidBy')->get();
+        $colocation->load('categories');
+
+        $memberships = $colocation->memberships()
+            ->whereNull('left_at')
+            ->with('user')
+            ->get();
+
+        $expenses = $colocation->expenses()
+            ->with('category', 'paidBy')
+            ->get();
+
         $settlements = $this->calculateSettlements($colocation);
+
+        $currentUser = auth()->user();
+        $currentMembership = $memberships->firstWhere('user_id', $currentUser->id);
+
+        foreach ($memberships as $membership) {
+            $membership->reputation = $membership->user->getReputationScore();
+            $membership->can_kick = $currentMembership &&
+                                    $currentMembership->role === 'owner' &&
+                                    $membership->user_id !== $currentUser->id;
+        }
+
+        $members = $memberships;
+
         return view('colocations.show', compact('colocation', 'members', 'expenses', 'settlements'));
     }
 
@@ -189,41 +211,42 @@ class ColocationController extends Controller
 
         return $settlements;
     }
-public function kick(Colocation $colocation, User $user)
-{
-    $currentUser = auth()->user();
-    $currentMembership = $colocation->memberships()
-        ->where('user_id', $currentUser->id)
-        ->whereNull('left_at')
-        ->first();
 
-    if (!$currentMembership || $currentMembership->role !== 'owner') {
-        return back()->with('error', 'Seul le propriétaire peut expulser un membre.');
+    public function kick(Colocation $colocation, User $user)
+    {
+        $currentUser = auth()->user();
+        $currentMembership = $colocation->memberships()
+            ->where('user_id', $currentUser->id)
+            ->whereNull('left_at')
+            ->first();
+
+        if (!$currentMembership || $currentMembership->role !== 'owner') {
+            return back()->with('error', 'Seul le propriétaire peut expulser un membre.');
+        }
+
+        if ($user->id === $currentUser->id) {
+            return back()->with('error', 'Vous ne pouvez pas vous expulser vous-même.');
+        }
+
+        $membership = $colocation->memberships()
+            ->where('user_id', $user->id)
+            ->whereNull('left_at')
+            ->first();
+
+        if (!$membership) {
+            return back()->with('error', 'Ce membre n\'est pas dans la colocation.');
+        }
+
+        $balance = $this->calculateBalance($colocation, $user->id);
+
+        ReputationLog::create([
+            'user_id' => $user->id,
+            'change'  => $balance < 0 ? -1 : 1,
+            'reason'  => $balance < 0 ? 'Expulsé avec dette' : 'Expulsé sans dette',
+        ]);
+
+        $membership->update(['left_at' => now()]);
+
+        return back()->with('success', "L'utilisateur {$user->name} a été expulsé de la colocation.");
     }
-
-    if ($user->id === $currentUser->id) {
-        return back()->with('error', 'Vous ne pouvez pas vous expulser vous-même.');
-    }
-
-    $membership = $colocation->memberships()
-        ->where('user_id', $user->id)
-        ->whereNull('left_at')
-        ->first();
-
-    if (!$membership) {
-        return back()->with('error', 'Ce membre n\'est pas dans la colocation.');
-    }
-
-    $balance = $this->calculateBalance($colocation, $user->id);
-
-    ReputationLog::create([
-        'user_id' => $user->id,
-        'change'  => $balance < 0 ? -1 : 1,
-        'reason'  => $balance < 0 ? 'Expulsé avec dette' : 'Expulsé sans dette',
-    ]);
-
-    $membership->update(['left_at' => now()]);
-
-    return back()->with('success', "L'utilisateur {$user->name} a été expulsé de la colocation.");
-}
 }

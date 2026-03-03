@@ -9,7 +9,6 @@
 
         .container { max-width: 1000px; margin: 0 auto; }
 
-        /* NAV */
         nav {
             display: flex;
             justify-content: space-between;
@@ -23,7 +22,6 @@
         nav h1 { font-size: 18px; color: #333; }
         .btn-red { background: #c0392b; border: none; cursor: pointer; color: white; padding: 7px 16px; border-radius: 4px; font-size: 13px; }
 
-        /* STATS */
         .stats {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -39,7 +37,6 @@
         .stat-value { font-size: 24px; font-weight: bold; color: #222; }
         .stat-label { font-size: 11px; color: #888; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.4px; }
 
-        /* SECTION */
         .section {
             background: #fff;
             border: 1px solid #ddd;
@@ -56,26 +53,22 @@
             background: #fafafa;
         }
 
-        /* TABLE */
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th { text-align: left; padding: 9px 14px; background: #f5f5f5; color: #555; font-weight: 600; border-bottom: 1px solid #e0e0e0; font-size: 12px; }
         td { padding: 9px 14px; border-bottom: 1px solid #f0f0f0; color: #333; }
         tr:last-child td { border-bottom: none; }
         tbody tr:hover td { background: #fafafa; }
 
-        /* BADGES */
         .badge { display: inline-block; padding: 2px 9px; border-radius: 3px; font-size: 11px; font-weight: 600; }
         .badge-active { background: #e9f7ef; color: #1e8449; }
         .badge-cancelled { background: #fdecea; color: #922b21; }
         .badge-banned { background: #fdecea; color: #922b21; }
         .badge-admin { background: #eaf2ff; color: #1a5276; }
 
-        /* BUTTONS */
         .btn-sm { padding: 4px 10px; font-size: 12px; border: none; cursor: pointer; color: white; border-radius: 4px; font-weight: 600; }
         .btn-ban { background: #c0392b; }
         .btn-unban { background: #27ae60; }
 
-        /* ALERTS */
         .alert { padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 13px; }
         .alert-success { background: #e9f7ef; border: 1px solid #a9dfbf; color: #1e8449; }
         .alert-error { background: #fdecea; border: 1px solid #f1948a; color: #922b21; }
@@ -198,9 +191,8 @@
                         @endif
                     </td>
                     <td>
-                        @php $rep = $user->getReputationScore(); @endphp
-                        <span class="{{ $rep > 0 ? 'rep-pos' : ($rep < 0 ? 'rep-neg' : 'text-muted') }}">
-                            {{ $rep > 0 ? '+' : '' }}{{ $rep }}
+                        <span class="{{ $user->reputation > 0 ? 'rep-pos' : ($user->reputation < 0 ? 'rep-neg' : 'text-muted') }}">
+                            {{ $user->reputation > 0 ? '+' : '' }}{{ $user->reputation }}
                         </span>
                     </td>
                     <td>

@@ -11,7 +11,6 @@ class AdminController extends Controller
 {
     public function index()
     {
-        // Check admin hna direct
         if (!auth()->user()->is_admin) {
             abort(403);
         }
@@ -31,6 +30,10 @@ class AdminController extends Controller
         }, 'expenses'])->latest()->get();
 
         $users = User::with('reputationLogs')->latest()->get();
+
+        foreach ($users as $user) {
+            $user->reputation = $user->getReputationScore();
+        }
 
         return view('admin.dashboard', compact('stats', 'colocations', 'users'));
     }
